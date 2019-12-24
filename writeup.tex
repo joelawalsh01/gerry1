@@ -1,0 +1,90 @@
+\documentclass{article}
+
+\usepackage{amsmath,graphicx,pslatex}
+\usepackage[pdftex,colorlinks]{hyperref}
+
+\begin{document}
+\title{"Is Gerrymandering Bad or Am I Just Bad at Gerrymandering?"}
+\author{Mirae Sunny Kim mk34442 and Joel Walsh jaw5744}
+\maketitle
+
+\section{Introduction}
+	\hspace{\parindent}
+ The particularly American incarnation of redistricting is often referred to as “Gerrymandering”. The term takes its name from a portmanteau of “Gerry” and “salamander”. In February of 1812 Massachusetts governor Eldbridge Gerry signed a bill allowing legislators to essentially draw their own districts. At an 1812 dinner party put on by the federalist party, one such absurdly shaped district earned the nickname the “gerry-mander” (Dean, 1892). Throughout the last century, advances in technology have allowed politicians to draw these districts with ruthless precision. Laws governing the process vary from state to state, and the Supreme Court appears poised to allow states to devise their own regulations for the process. This hits congressional districts the hardest, especially in the elections directly after a US Census, when information on voters is most accurate. 
+
+
+\section{Background on use and methods}
+\hspace{\parindent}
+Gerrymandering is not a clandestine plot, whose objectives are buried deep in the recesses of some hidden lair. The Redistricing Majority Project (REDMAP), started in 2008, expressly states their purpose  on their website as being, “to create 20-25 new Republican Congressional Districts through the redistricting process over the next five election cycles, solidifying a Republican House majority.” (REDMAP, 2019) This project proved to be wildly successful in subsequent congressional elections. A prime example is Michigan, where Democrats represent roughly 50 percent of all voters, and yet 9 of the 14 congressional seats went to Republican candidates. This is not to say this phenomena exists solely to benefit Republicans, as Democrat-leaning states Maryland is generally regarded as one of the most gerrymandered states in the union.
+
+\hspace{\parindent}
+Redistricting generally follows one of two different aims when minimizing majority power, “packing” and “cracking”. Packing refers to the process of putting as many of one party as possible into a district, in an effort to minimize the spread of their influence. Cracking refers to breaking up a majority population into several districts, so as to help slight majorities form of the opposing party. Our program can be thought of as inadvertently achieving both aims; cracking apart majority populations when necessary and packing majority voters into densely populated districts to dilute their influence.
+
+\section{Conception and tabulation method}
+\hspace{\parindent}
+The next speed bump was the Population minority rules method. This method caused us trouble for a while. We first sought to understand the canonical dynamic programming example, the fibonacci sequence. We noticed that the fibonacci programs we found online strictly defined a more directly defined “base case” for\[ n=0,1,2\]. (This is due to the first  n=1 and n=2  numbers being 1 and 1.) After that, fib(n-1) + fib(n-2) could recursively solve for any value of n. Figure 1 shows a diagram found on the website Geeks for Geeks to show how often a recursive call happens for fib(5). This led us to think about the minority rules method in a similar fashion. Similar to how fib(1) and fib(2) represented “base cases” or “dead ends”, the highlighted portion in Figure 1 revealed our own “dead ends” for the minority rules class.
+
+
+\begin{figure}[ht]
+  \includegraphics[scale=.3]{figure1}
+  \centering
+  \caption{Figure 1: Fibonacci and minority rules }
+  \label{fig:apollo}
+\end{figure}
+
+\hspace{\parindent}
+	What followed this identification was an organic processes which can best be characterized as tabulation. We started from the bottom and worked our way up through the dead ends, solving the subproblems at the beginning. We created a blank matrix of Districting objects, where we could store each optimal configuration. In terms of rows x columns, our matrix was configured as int population (number of voters total) x int ndistricts. We started with the case of 1x1. This was easy enough, as there’s only one way to partition this. We then realized that every other diagonal element where population equals ndistricts could be divided up in a similar fashion, with each voter representing a district. Our matrix would essentially be empty in the upper right half of the matrix, where ndistricts > population. This makes sense, as it’s impossible to split four voters into five districts, and so on. The first column of the matrix, the case where (population, ndistricts=1), was also simple, as the lean of only one group is simple to calculate. This left us with one base case to hard code, (3,2). This was accomplished by comparing  the rule of the Districting object with the first two voters in one district as opposed to the last two voters in one district. 
+
+
+\begin{figure}[ht]
+  \includegraphics[scale=.3]{figure2}
+  \centering
+  \caption{Figure 2: Tabulation matrix, vector of vectors of Districting }
+  \label{fig:apollo}
+  \end{figure}
+
+\section{Conception and tabulation method}
+\hspace{\parindent}
+This tabulation procedure led to some unintended problems, however. This problem differs from the fibonacci problem in one key regard. Fibonacci numbers have definite answers to subproblems; and these sub-problems were slightly more ambiguous. At each stage of tabulation, we were telling our program to make a value judgement. For example, take the case of splitting 11 voters into 5 districts, as given in the textbook. You can either take the case of ten voters and five districts, and add the 11th voter to the last district, or take the case of 10 voters and four districts and add the 11th voter to its own district. Tabulation will work fine, so long as one of the combinations (10,5) then “add to last” or 10,4  then “extend with new” , has a more optimal rule. We did not account for this scenario, and when the rule value was equivalent the program defaulted to our else statement for tabulation. This led to some very skewed districts. 
+\hspace{\parindent}
+
+	In order to solve this problem we tried a number of methods. We tried to set a maximum size for groups, adding a condition that favored adding an additional district, and to check district lean within a certain prespecified range. We then attempted what resembles a greedy approach (the file labeled “greedy.cc") if both configurations of districts gave the same outcome. We created methods within District called wastedA and wastedB, that calculated the 
+wasted B votes and wasted A votes. The statement would use the amount of wasted votes as a sort of tiebreaker in the event that both configurations gave the same numerical rule value. The idea is that we want to keep the combination that wastes the most majority votes. This approach was actually quite successful at creating more equivalent districts , but did not work consistently enough. Sometimes it would leave the middle two districts completely barren of voters. The interesting result of this algorithm is that the efficiency gap often went down to a level we had not seen before, to less than 0.1. What we assume is the explanation is that every time an equivalent rule value came up from the two options, the algorithm chose the path that wasted the most A votes roughly the same amount of times as the path that wasted B votes. The groups then are reformulated, folding unbalanced districts into each other. These two paths essentially offset each other, leading to very few wasted votes by the end of the program. We may have unintentionally found a way to minimize the efficiency gap.
+
+\section{Results}
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|l|l|}
+\hline
+ \multicolumn{1}{|p{1.5cm}|}{\centering population \\ majority \\ rule} 
+& \multicolumn{1}{|p{1.5cm}|}{\centering number \\ of times \\ minority rule \\ achieved} 
+& \multicolumn{1}{|p{1.5cm}|}{\centering number \\ of times \\ minority rule \\ not achieved} 
+& \multicolumn{1}{|p{1.5cm}|}{\centering average \\ efficiency \\ gap} 
+& \multicolumn{1}{|p{1.5cm}|}{\centering average \\ wasted \\ votes \\ A }
+& \multicolumn{1}{|p{1.5cm}|}{\centering average  wasted \\ votes \\ B }
+& \multicolumn{1}{|p{1.5cm}|}{\centering maximum \\ minority \\ rule } 
+& \multicolumn{1}{|p{1.5cm}|}{\centering minimum \\ minority rule }\\
+\hline
+100 & 10 & 0 & .1078 & 99.8 & 8 & -3 & -1 \\
+\hline
+500 & 8 & 2 & .5064 & 498.6 & 7.8 & -3 & +1 \\
+\hline
+900 & 1 & 9 & .906.2 & 897.7 & 8.5 & -1 & +1 \\
+\hline
+
+\end{tabular}
+\end{center}
+
+
+\hspace{\parindent}
+
+The table above shows general trends. We ran each majority rule ten times and calculated averages for each parameter. An interesting developement was that the efficiency gap was approximately \[(majority\ rules) \times 10^{-3} \] As majority rule increased, there were fewer incidences of success at achieving minority rule. This makes sense, as an increasing majority makes it harder to achieve minority rule. 
+\hspace{\parindent}
+However, even with 900 majority rule out of 1000 population, there was one instance of successful minority rule. With given limitations to district size/approximately even district size, this would be more difficult, since the votes that have accumulated to make minority rule happen would need to be separated according to size limitations. Essentially, having size limitations lowers the available "cut-offs" between districts, assuming contiguity, therefore making it more difficult for dividing to achieve certain minority rule with huge overpowering majorities such as 900 out of 1000.
+
+\section{References}
+Dean, J. W. (1892). History of the Gerrymander. Priv. print.
+The RSLC Redistricting Majority Project – REDMAP. (n.d.). Retrieved December 4, 2019, from http://www.redistrictingmajorityproject.com/
+
+
+
+\end{document}
